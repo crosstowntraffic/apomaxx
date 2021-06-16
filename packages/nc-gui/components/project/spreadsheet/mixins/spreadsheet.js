@@ -103,7 +103,10 @@ export default {
         limit: this.size,
         offset: this.size * (this.page - 1),
         where: this.concatenatedXWhere,
-        sort: this.sort
+        sort: this.sort,
+        childs: (this.meta && this.meta.hasMany && this.meta.hasMany.map(hm => hm.tn).join())||'',
+        parents: (this.meta && this.meta.belongsTo && this.meta.belongsTo.map(hm => hm.rtn).join())||'',
+        many: (this.meta && this.meta.manyToMany && this.meta.manyToMany.map(mm => mm.rtn).join())||''
       }
     }, colLength() {
       return (this.availableColumns && this.availableColumns.length) || 0
@@ -146,8 +149,8 @@ export default {
       return this.nodes.tn || this.nodes.view_name
     },
     primaryValueColumn() {
-      if (!this.meta || !this.availableColumns) return '';
-      return this.availableColumns.length ? this.availableColumns[0]._cn : '';
+      if (!this.meta || !this.availableColumns || !this.availableColumns.length) return '';
+      return (this.availableColumns.find(col => col.pv) || {_cn: ''})._cn;
     },
   },
   watch: {
